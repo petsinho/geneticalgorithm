@@ -1,6 +1,6 @@
 {
-  "name": "geneticalgorithm",
-  "version": "0.3.6",
+  "name": "@petsinho/geneticjs",
+  "version": "0.3.7",
   "description": "a general purpose genetic algorithm, an A.I. tool useful for machine evolution and adaptation",
   "main": "index.js",
   "devDependencies": {
@@ -20,13 +20,17 @@
     "artificial evolution",
     "evolve"
   ],
-  "author": {
-    "name": "Anton Panchishin"
-  },
+  "author": "Anton Panchishin",
   "license": "Unlicense",
   "homepage": "https://github.com/panchishin/geneticalgorithm",
-  "readmeFilename": "README.md",
   "dependencies": {
     "lodash": "^4.17.11"
+  },
+  "bugs": {
+    "url": "https://github.com/panchishin/geneticalgorithm/issues"
+  },
+  "directories": {
+    "example": "examples",
+    "test": "test"
   }
 }

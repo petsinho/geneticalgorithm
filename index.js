@@ -1,5 +1,5 @@
 /* eslint-disable require-jsdoc */
-import {sortBy} from 'lodash';
+const _ = require('lodash');
 
 module.exports = function geneticAlgorithmConstructor(options) {
   function settingDefaults() {
@@ -75,7 +75,7 @@ module.exports = function geneticAlgorithmConstructor(options) {
   }
 
   function orderPopulation() {
-    return sortBy(settings.population, doesABeatB);
+    return _.sortBy(settings.population, doesABeatB);
   }
 
   function compete() {
