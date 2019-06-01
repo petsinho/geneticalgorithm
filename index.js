@@ -1,4 +1,6 @@
 /* eslint-disable require-jsdoc */
+import {sortBy} from 'lodash';
+
 module.exports = function geneticAlgorithmConstructor(options) {
   function settingDefaults() {
     return {
@@ -19,17 +21,16 @@ module.exports = function geneticAlgorithmConstructor(options) {
 
       population: [],
       populationSize: 100,
+      elitism: 0.0,
     };
   }
 
   function settingWithDefaults(preferences, defaults) {
-    // settings = settings || {};
     const settings = {...defaults, ...preferences};
 
     if (settings.population.length <= 0) {
       throw Error('population must be an array and contain at least 1 phenotypes');
     }
-
     if (settings.populationSize <= 0) {
       throw Error('populationSize must be greater than 0');
     }
@@ -66,7 +67,6 @@ module.exports = function geneticAlgorithmConstructor(options) {
   }
 
   function doesABeatB(a, b) {
-    const doesABeatB = false;
     if (settings.doesABeatBFunction) {
       return settings.doesABeatBFunction(a, b);
     } else {
@@ -74,32 +74,46 @@ module.exports = function geneticAlgorithmConstructor(options) {
     }
   }
 
+  function orderPopulation() {
+    return sortBy(settings.population, doesABeatB);
+  }
+
   function compete() {
     const nextGeneration = [];
 
-    for (let p = 0; p < settings.population.length - 1; p += 2) {
-      const phenotype = settings.population[p];
-      const competitor = settings.population[p + 1];
+    const elite = Math.round(populationSize * elitism);
+    if (elite > 0) {
+      const populationMix = [];
+      orderPopulation();
 
-      nextGeneration.push(phenotype);
-      if (doesABeatB(phenotype, competitor)) {
-        if (Math.random() < 0.5) {
-          nextGeneration.push(mutate(phenotype));
-        } else {
-          nextGeneration.push(crossover(phenotype));
-        }
+      for (const p = 0; p < elite; p += 1) {
+        populationMix.push(settings.population[p]);
+      }
+
+      for (const p = 0; p < settings.population.length - elite; p += 1) {
+        populationMix.push(settings.population[p]);
+      }
+      settings.population = populationMix;
+    }
+
+    randomizePopulationOrder(elite);
+
+    for (const p = elite; p < settings.population.length; p += 1) {
+      const phenotype = settings.population[p];
+
+      if (Math.random() < 0.5) {
+        nextGeneration.push(mutate(phenotype));
       } else {
-        nextGeneration.push(competitor);
+        nextGeneration.push(crossover(phenotype));
       }
     }
 
     settings.population = nextGeneration;
   }
 
-
-  function randomizePopulationOrder() {
-    for (let index = 0; index < settings.population.length; index++) {
-      const otherIndex = Math.floor(Math.random() * settings.population.length);
+  function randomizePopulationOrder(elite) {
+    for (let index = elite; index < settings.population.length; index++) {
+      const otherIndex = elite + Math.floor(Math.random() * (settings.population.length - elite));
       const temp = settings.population[otherIndex];
       settings.population[otherIndex] = settings.population[index];
       settings.population[index] = temp;
@@ -113,7 +127,6 @@ module.exports = function geneticAlgorithmConstructor(options) {
       }
 
       populate();
-      randomizePopulationOrder();
       compete();
       return this;
     },
