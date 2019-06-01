@@ -5,12 +5,9 @@
   "main": "index.js",
   "devDependencies": {
     "eslint": "^5.16.0",
-    "eslint-config-google": "^0.13.0",
-    "expresso": "0.9.2"
+    "eslint-config-google": "^0.13.0"
   },
-  "scripts": {
-    "test": "expresso test/*"
-  },
+  "scripts": {},
   "repository": {
     "type": "git",
     "url": "git+https://github.com/panchishin/geneticalgorithm.git"
@@ -30,7 +27,6 @@
   "homepage": "https://github.com/panchishin/geneticalgorithm",
   "readmeFilename": "README.md",
   "dependencies": {
-    "lodash": "^4.17.11",
-    "npm": "^6.4.0"
+    "lodash": "^4.17.11"
   }
 }
