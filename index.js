@@ -1,7 +1,7 @@
 /* eslint-disable require-jsdoc */
 const _ = require('lodash');
 
-module.exports = function geneticAlgorithmConstructor(options) {
+const Genetics = (options) => {
   function settingDefaults() {
     return {
 
@@ -162,4 +162,9 @@ module.exports = function geneticAlgorithmConstructor(options) {
       );
     },
   };
+};
+
+
+module.exports = {
+  Genetics,
 };

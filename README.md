@@ -13,13 +13,13 @@ Section Links : [Construction](#construction) , [Execution](#execution) , [Examp
 # Construction
 ### GeneticAlgorithm constructor
 ```js
-var GeneticAlgorithmConstructor = require('geneticalgorithm')
-var geneticalgorithm = GeneticAlgorithmConstructor( config )
+import { Genetics } from '@petsinho/geneticjs';
+const  geneticalgorithm = Genetics(config);
 ```
 The minimal configuration for constructing an GeneticAlgorithm calculator is like so:
 
 ```js
-var config = {
+const config = {
     mutationFunction: aMutationFunctionYouSupply,
     crossoverFunction: yourCrossoverFunction,
     fitnessFunction: yourFitnessFunction,
@@ -27,8 +27,8 @@ var config = {
     population: [ /* one or more phenotypes */ ],
     populationSize: aDecimalNumberGreaterThanZero 	// defaults to 100
 }
-var GeneticAlgorithmConstructor = require('geneticalgorithm')
-var geneticalgorithm = GeneticAlgorithmConstructor( config )
+import { Genetics } from '@petsinho/geneticjs';
+const  geneticalgorithm = Genetics(config);
 ```
 
 That creates one instance of an GeneticAlgorithm calculator which uses the initial configuration you supply.  All configuration options are optional except *population*.  If you don't specify a crossover function then GeneticAlgorithm will only do mutations and similarly if you don't specify the mutation function it will only do crossovers.  If you don't specify either then no evolution will happen, go figure.
@@ -40,25 +40,25 @@ That is all the configuration you need to get started.  You can skip the next se
 Create another GeneticAlgorithm calculator based off of an existing configuration.
 
 ```js
-var anotherGA = geneticalgorithm.clone()
+const anotherGA = geneticalgorithm.clone();
 ```
 
 ### geneticalgorithm.clone( config )
 Create another GeneticAlgorithm calculator based off of an existing configuration and override some or all of the configuration
 
 ```js
-var anotherWithLargePopulation = geneticalgorithm.clone({
+const anotherWithLargePopulation = geneticalgorithm.clone({
 	populationSize : 1000
-})
+});
 ```
 
 ### geneticalgorithm.config()
 Get the current configuration of a GeneticAlgorithm.  All defaults will be populated.  Can be used for debugging or populating a new or clone GeneticAlgorithm.  A clone GeneticAlgorithm with 10% larger population size could be created like so:
 ```js
-var size = geneticalgorithm.config().populationSize
-var biggerGeneticAlgorithm = geneticalgorithm.config({
+const size = geneticalgorithm.config().populationSize
+const biggerGeneticAlgorithm = geneticalgorithm.config({
 	populationSize = size * 1.10
-})
+});
 ```
 
 # Execution
@@ -66,12 +66,12 @@ var biggerGeneticAlgorithm = geneticalgorithm.config({
 ### geneticalgorithm.evolve( )
 Do one generation of evolution like so
 ```js
-geneticalgorithm.evolve( )
+geneticalgorithm.evolve();
 ```
 The *.evolve()* moves the calculator ahead by one generation.  Depending on the population size and the speed of the functions you provide in the configuration this coupld be quick or take some time.
 *.evolve()* changes the geneticalgorithm and also returns it.  This is for simplicity so that you could do chain calls like so
 ```js
-geneticalgorithm.evolve().evolve().best()
+geneticalgorithm.evolve().evolve().best();
 ```
 to do two evolutions and then get the best phenoType (see *.best()* below).
 
@@ -80,31 +80,31 @@ Same as *.evolve()* but change the configuration prior to running the evolution 
 ```js
 geneticalgorithm.evolve( {
 	populationSize : 200
-} )
+} );
 ```
 
 ### geneticalgorithm.best()
 Retrieve the Phenotype with the highest fitness score like so
 ```js
-var best = geneticalgorithm.best()
+const best = geneticalgorithm.best();
 ```
 
 ### geneticalgorithm.bestScore()
 Retrieve the score of the best Phenotype like so
 ```js
-var best = geneticalgorithm.bestScore()
+const best = geneticalgorithm.bestScore();
 ```
 
 ### geneticalgorithm.population()
 Retrieve the whole population like so
 ```js
-var phenotypeList = geneticalgorithm.population()
+const phenotypeList = geneticalgorithm.population();
 ```
 
 ### geneticalgorithm.scoredPopulation()
 Retrieve the whole population wrapped in a score object like so
 ```js
-var scoreList = geneticalgorithm.scoredPopulation()
+const scoreList = geneticalgorithm.scoredPopulation();
 console.log( scoreList[0].phenotype )
 console.log( scoreList[0].score )
 ```
@@ -122,11 +122,11 @@ This is the specification of the configuration functions you pass to GeneticAlgo
 The mutation function that you provide.  It is a synchronous function that mutates the phenotype that you provide like so:
 ```js
 function mutationFunction (oldPhenotype) {
-	var resultPhenotype = {}
+	const resultPhenotype = {};
 	// use oldPhenotype and some random
 	// function to make a change to your
 	// phenotype
-	return resultPhenotype
+	return resultPhenotype;
 }
 ```
 
@@ -136,7 +136,7 @@ function mutationFunction (oldPhenotype) {
 The crossover function that you provide.  It is a synchronous function that swaps random sections between two phenotypes.  Construct it like so:
 ```js
 function crossoverFunction(phenoTypeA, phenoTypeB) {
-	var result1 = {} , result2 = {}
+	const result1 = {} , result2 = {}
 	// use phenoTypeA and B to create phenotype result 1 and 2
 	return [result1,result2]
 }
@@ -146,8 +146,8 @@ function crossoverFunction(phenoTypeA, phenoTypeB) {
 > Must return a number
 
 ```js
-function fitnessFunction(phenotype) {
-	var fitness = 0
+const fitnessFunction = (phenotype) => {
+	let fitness = 0
 	// use phenotype and possibly some other information
 	// to determine the fitness number.  Higher is better, lower is worse.
 	return fitness;
@@ -161,9 +161,9 @@ This function, if specified, overrides using simply the fitness function to comp
 
 The default implementation if you don't supply one is:
 ```js
-function doesABeatBFunction(phenoTypeA, phenoTypeB) {
-	return fitnessFunction(phenoTypeA) >= fitnessFunction(phenoTypeB)
-}
+const doesABeatBFunction = (phenoTypeA, phenoTypeB) => 
+	fitnessFunction(phenoTypeA) >= fitnessFunction(phenoTypeB);
+
 ```
 Imagine you have implemented a *yourDiversityFunc(phenoTypeA, phenoTypeB)* that returns some numeric value and you've identified that some *MINIMUM_SIMILARITY* value is necessary for A and B to even be compared otherwise you want to preserve both.  Your implementation may look something like this
 ```js
