@@ -1,7 +1,7 @@
 {
   "name": "@petsinho/geneticjs",
-  "version": "1.0.3",
-  "description": "a general purpose genetic algorithm, an A.I. tool useful for machine evolution and adaptation",
+  "version": "2.0.0",
+  "description": "Genetic algorithms in js",
   "main": "index.js",
   "devDependencies": {
     "eslint": "^5.16.0",
@@ -17,10 +17,15 @@
     "algorithm",
     "genetic algorithm",
     "geneticalgorithm",
+    "genetijs",
     "artificial evolution",
-    "evolve"
+    "evolve",
+    "async",
+    "await",
+    "promise",
+    "elitism"
   ],
-  "author": "Anton Panchishin",
+  "author": "Panagiotis Petsas",
   "license": "Unlicense",
   "homepage": "https://github.com/panchishin/geneticalgorithm",
   "dependencies": {
