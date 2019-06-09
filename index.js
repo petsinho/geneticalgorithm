@@ -86,11 +86,11 @@ const Genetics = (options) => {
       const populationMix = [];
       orderPopulation();
 
-      for (const p = 0; p < elite; p += 1) {
+      for (let p = 0; p < elite; p += 1) {
         populationMix.push(settings.population[p]);
       }
 
-      for (const p = 0; p < settings.population.length - elite; p += 1) {
+      for (let p = 0; p < settings.population.length - elite; p += 1) {
         populationMix.push(settings.population[p]);
       }
       settings.population = populationMix;
