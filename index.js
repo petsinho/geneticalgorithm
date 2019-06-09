@@ -5,15 +5,15 @@ const Genetics = (options) => {
   function settingDefaults() {
     return {
 
-      mutationFunction: function(phenotype) {
+      mutationFunction: function (phenotype) {
         return phenotype;
       },
 
-      crossoverFunction: function(a, b) {
+      crossoverFunction: function (a, b) {
         return [a, b];
       },
 
-      fitnessFunction: function(phenotype) {
+      fitnessFunction: function (phenotype) {
         return 0;
       },
 
@@ -21,12 +21,12 @@ const Genetics = (options) => {
 
       population: [],
       populationSize: 100,
-      elitism: 0.0,
+      elitism: 1.0,
     };
   }
 
   function settingWithDefaults(preferences, defaults) {
-    const settings = {...defaults, ...preferences};
+    const settings = { ...defaults, ...preferences };
 
     if (settings.population.length <= 0) {
       throw Error('population must be an array and contain at least 1 phenotypes');
@@ -40,30 +40,30 @@ const Genetics = (options) => {
 
   let settings = settingWithDefaults(options, settingDefaults());
 
-  function populate() {
+  async function populate() {
+    const { population, populationSize } = settings;
     const size = settings.population.length;
-    while (settings.population.length < settings.populationSize) {
-      settings.population.push(
-          mutate(
-              cloneJSON(settings.population[Math.floor(Math.random() * size)])
-          )
-      );
+    const populationDeficit = populationSize - population.length;
+    if (populationDeficit <= 0) {
+      return;
     }
+    const extraPopulationPromises = Array(populationDeficit)
+      .fill()
+      .map(p => mutate({ ...settings.population[Math.floor(Math.random() * size)] }))
+
+    const extraPopulation = await Promise.all(extraPopulationPromises);
+    return [...settings.population, ...extraPopulation];
   }
 
-  function cloneJSON(object) {
-    return JSON.parse(JSON.stringify(object));
+  async function mutate(phenotype) {
+    return await settings.mutationFunction({ ...phenotype });
   }
 
-  function mutate(phenotype) {
-    return settings.mutationFunction(cloneJSON(phenotype));
-  }
-
-  function crossover(phenotype) {
-    phenotype = cloneJSON(phenotype);
+  async function crossover(phenotype) {
+    phenotype = { ...phenotype };
     let mate = settings.population[Math.floor(Math.random() * settings.population.length)];
-    mate = cloneJSON(mate);
-    return settings.crossoverFunction(phenotype, mate)[0];
+    mate = { ...mate };
+    return await settings.crossoverFunction(phenotype, mate)[0];
   }
 
   function doesABeatB(a, b) {
@@ -75,10 +75,10 @@ const Genetics = (options) => {
   }
 
   function orderPopulation() {
-    return _.sortBy(settings.population, doesABeatB);
+    settings.population = _.sortBy(settings.population, doesABeatB);
   }
 
-  function compete() {
+  async function compete() {
     const nextGeneration = [];
     const { populationSize, elitism } = settings;
     const elite = Math.round(populationSize * elitism);
@@ -101,14 +101,15 @@ const Genetics = (options) => {
     for (let p = elite; p < settings.population.length; p += 1) {
       const phenotype = settings.population[p];
 
+      const nextGenerationPromises = [];
       if (Math.random() < 0.5) {
-        nextGeneration.push(mutate(phenotype));
+        nextGenerationPromises.push(mutate(phenotype));
       } else {
-        nextGeneration.push(crossover(phenotype));
+        nextGenerationPromises.push(crossover(phenotype));
       }
+      nextGeneration = await Promise.all(nextGenerationPromises);
+      settings.population = nextGeneration;
     }
-
-    settings.population = nextGeneration;
   }
 
   function randomizePopulationOrder(elite) {
@@ -121,49 +122,49 @@ const Genetics = (options) => {
   }
 
   return {
-    evolve: function(options) {
+    evolve: async function (options) {
       if (options) {
         settings = settingWithDefaults(options, settings);
       }
 
-      populate();
-      compete();
+      const evolvedPopulation = await populate();
+      settings.population = evolvedPopulation;
+      await compete();
       return this;
     },
-    best: function() {
-      const scored = this.scoredPopulation();
-      const result = scored.reduce(function(a, b) {
+    best: function () {
+      const scored = this.scoredPopulation(settings.population);
+      const result = scored.reduce(function (a, b) {
         return a.score >= b.score ? a : b;
       }, scored[0]).phenotype;
-      return cloneJSON(result);
+      return { ...result };
     },
-    bestScore: function() {
+    bestScore: function () {
       return settings.fitnessFunction(this.best());
     },
-    population: function() {
-      return cloneJSON(this.config().population);
+    population: function () {
+      return { ...this.config().population };
     },
-    scoredPopulation: function() {
-      return this.population().map(function(phenotype) {
+    scoredPopulation: () => {
+      return settings.population.map(function (phenotype) {
         return {
-          phenotype: cloneJSON(phenotype),
+          phenotype: { ...phenotype },
           score: settings.fitnessFunction(phenotype),
         };
       });
     },
-    config: function() {
-      return cloneJSON(settings);
+    config: function () {
+      return { ...settings };
     },
-    clone: function(options) {
+    clone: function (options) {
       return geneticAlgorithmConstructor(
-          settingWithDefaults(options,
-              settingWithDefaults(this.config(), settings)
-          )
+        settingWithDefaults(options,
+          settingWithDefaults(this.config(), settings)
+        )
       );
     },
   };
 };
-
 
 module.exports = {
   Genetics,
