@@ -98,7 +98,7 @@ const Genetics = (options) => {
 
     randomizePopulationOrder(elite);
 
-    for (const p = elite; p < settings.population.length; p += 1) {
+    for (let p = elite; p < settings.population.length; p += 1) {
       const phenotype = settings.population[p];
 
       if (Math.random() < 0.5) {
