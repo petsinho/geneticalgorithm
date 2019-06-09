@@ -80,7 +80,7 @@ const Genetics = (options) => {
 
   function compete() {
     const nextGeneration = [];
-
+    const { populationSize, elitism } = settings;
     const elite = Math.round(populationSize * elitism);
     if (elite > 0) {
       const populationMix = [];
