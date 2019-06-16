@@ -5,11 +5,11 @@ const Genetics = (options) => {
   function settingDefaults() {
     return {
 
-      mutationFunction: function (phenotype) {
+      mutationFunction: async function (phenotype) {
         return phenotype;
       },
 
-      crossoverFunction: function (a, b) {
+      crossoverFunction: async function (a, b) {
         return [a, b];
       },
 
@@ -122,22 +122,23 @@ const Genetics = (options) => {
   }
 
   return {
-    evolve: async function (options) {
+    evolve: async function (evolutions = 1, options) {
       if (options) {
         settings = settingWithDefaults(options, settings);
       }
-
       const evolvedPopulation = await populate();
-      settings.population = evolvedPopulation;
-      await compete();
+      for (let evolutionsCompleted = 0; evolutionsCompleted < evolutions; evolutionsCompleted++) {
+        settings.population = evolvedPopulation;
+        await compete();
+      }
       return this;
     },
-    best: function () {
-      const scored = this.scoredPopulation(settings.population);
-      const result = scored.reduce(function (a, b) {
-        return a.score >= b.score ? a : b;
-      }, scored[0]).phenotype;
-      return { ...result };
+    best: function (topPeople = 1) {
+      const scored = _.uniqWith(
+        this.scoredPopulation(settings.population),
+        _.isEqual,
+      )
+      return scored.slice(0, topPeople);
     },
     bestScore: function () {
       return settings.fitnessFunction(this.best());
@@ -146,12 +147,16 @@ const Genetics = (options) => {
       return { ...this.config().population };
     },
     scoredPopulation: () => {
-      return settings.population.map(function (phenotype) {
-        return {
-          phenotype: { ...phenotype },
-          score: settings.fitnessFunction(phenotype),
-        };
-      });
+      return _.orderBy(
+        settings.population.map(function (phenotype) {
+          return {
+            phenotype: { ...phenotype },
+            score: settings.fitnessFunction(phenotype),
+          };
+        }),
+        ['score'],
+        ['desc'],
+      )
     },
     config: function () {
       return { ...settings };

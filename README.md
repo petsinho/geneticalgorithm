@@ -69,21 +69,27 @@ const biggerGeneticAlgorithm = geneticalgorithm.config({
 ### geneticalgorithm.evolve( )
 Do one generation of evolution like so
 ```js
-geneticalgorithm.evolve();
+await geneticalgorithm.evolve();
 ```
 The *.evolve()* moves the calculator ahead by one generation.  Depending on the population size and the speed of the functions you provide in the configuration this coupld be quick or take some time.
 *.evolve()* changes the geneticalgorithm and also returns it.  This is for simplicity so that you could do chain calls like so
 ```js
-geneticalgorithm.evolve().evolve().best();
+//perform 10 evolutions of the population and return the best chromosome
+(await geneticalgorithm.evolve(10)).best();
+
+
+//perform 100 evolutions of the population and return the top 10 chromosomes
+(await geneticalgorithm.evolve(100)).best(10);
+
 ```
 to do two evolutions and then get the best phenoType (see *.best()* below).
 
 ### geneticalgorithm.evolve( config )
 Same as *.evolve()* but change the configuration prior to running the evolution calculations.  In this example the populationSize is increased to 200:
 ```js
-geneticalgorithm.evolve( {
+await geneticalgorithm.evolve({
 	populationSize : 200
-} );
+});
 ```
 
 ### geneticalgorithm.best()
@@ -108,12 +114,12 @@ const phenotypeList = geneticalgorithm.population();
 Retrieve the whole population wrapped in a score object like so
 ```js
 const scoreList = geneticalgorithm.scoredPopulation();
-console.log( scoreList[0].phenotype )
-console.log( scoreList[0].score )
+console.log(scoreList[0].phenotype)
+console.log(scoreList[0].score)
 ```
 The result of *.scoredPopulation* is the following data structure
 ```js
-result = { phenotype : anItem , score : aNumber }
+result = {phenotype: anItem, score: aNumber}
 ```
 
 # Functions
@@ -124,7 +130,7 @@ This is the specification of the configuration functions you pass to GeneticAlgo
 
 The mutation function that you provide.  It is a synchronous function that mutates the phenotype that you provide like so:
 ```js
-function mutationFunction (oldPhenotype) {
+async function mutationFunction (oldPhenotype) {
 	const resultPhenotype = {};
 	// use oldPhenotype and some random
 	// function to make a change to your
@@ -138,7 +144,7 @@ function mutationFunction (oldPhenotype) {
 
 The crossover function that you provide.  It is a synchronous function that swaps random sections between two phenotypes.  Construct it like so:
 ```js
-function crossoverFunction(phenoTypeA, phenoTypeB) {
+async function crossoverFunction(phenoTypeA, phenoTypeB) {
 	const result1 = {} , result2 = {}
 	// use phenoTypeA and B to create phenotype result 1 and 2
 	return [result1,result2]
@@ -173,12 +179,12 @@ Imagine you have implemented a *yourDiversityFunc(phenoTypeA, phenoTypeB)* that 
 function doesABeatBFunction(phenoTypeA, phenoTypeB) {
 
   // if too genetically different to consider
-  if ( yourDiversityFunc(phenoTypeA, phenoTypeB) > MINIMUM_SIMILARITY ) {
+  if (yourDiversityFunc(phenoTypeA, phenoTypeB) > MINIMUM_SIMILARITY) {
     return false; 
   }
 
   // if phenoTypeA isn't better than phenoTypeB 
-  if ( fitnessFunction(phenoTypeA) =< fitnessFunction(phenoTypeB) ) {
+  if (fitnessFunction(phenoTypeA) =< fitnessFunction(phenoTypeB)) {
     return false;
   }
 
